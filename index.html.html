@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padel League Ranking System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #7c3aed 50%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #06b6d4, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #06b6d4;
+            font-size: 1.2rem;
+        }
+        
+        .ranking-system {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .system-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .criteria {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .criterion {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid;
+            transition: transform 0.3s ease;
+        }
+        
+        .criterion:hover {
+            transform: scale(1.05);
+        }
+        
+        .criterion:nth-child(1) { border-color: #3b82f6; }
+        .criterion:nth-child(2) { border-color: #10b981; }
+        .criterion:nth-child(3) { border-color: #a855f7; }
+        
+        .priority {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .criterion:nth-child(1) .priority { color: #3b82f6; }
+        .criterion:nth-child(2) .priority { color: #10b981; }
+        .criterion:nth-child(3) .priority { color: #a855f7; }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .title {
+                font-size: 2rem;
+            }
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .panel-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .group-selector {
+            background: linear-gradient(45deg, #7c3aed, #ec4899);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            min-height: 44px;
+        }
+        
+        .team-row {
+            background: rgba(30, 41, 59, 0.9);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: border-color 0.3s ease;
+        }
+        
+        .team-row:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .position-badge {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .team-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid;
+            min-width: 50px;
+        }
+        
+        .stat-mp { background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.3); }
+        .stat-w { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.3); }
+        .stat-l { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.3); }
+        .stat-sd { background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.3); }
+        .stat-gd { background: rgba(6, 182, 212, 0.2); border-color: rgba(6, 182, 212, 0.3); }
+        
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .stat-mp .stat-value { color: #3b82f6; }
+        .stat-w .stat-value { color: #10b981; }
+        .stat-l .stat-value { color: #ef4444; }
+        .stat-sd .stat-value.positive { color: #10b981; }
+        .stat-sd .stat-value.negative { color: #ef4444; }
+        .stat-gd .stat-value.positive { color: #10b981; }
+        .stat-gd .stat-value.negative { color: #ef4444; }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        
+        .add-match-btn {
+            background: linear-gradient(45deg, #06b6d4, #3b82f6);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            min-height: 44px;
+        }
+        
+        .add-match-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .match-card {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .teams {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .team-select {
+            background: rgba(51, 65, 85, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(71, 85, 105, 1);
+            min-height: 44px;
+        }
+        
+        .vs {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .winner-badge {
+            background: linear-gradient(45deg, #10b981, #059669);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .match-stats {
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1));
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .stats-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #3b82f6;
+        }
+        
+        .team-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .team-stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(71, 85, 105, 0.5);
+        }
+        
+        .team-stat-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .sets-section {
+            margin-top: 20px;
+        }
+        
+        .sets-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .add-set-btn {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            min-height: 44px;
+        }
+        
+        .set-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(51, 65, 85, 0.6);
+            border-radius: 10px;
+            border: 1px solid rgba(71, 85, 105, 0.5);
+        }
+        
+        .set-label {
+            font-weight: bold;
+            color: #06b6d4;
+            min-width: 60px;
+        }
+        
+        .game-input {
+            width: 60px;
+            padding: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(71, 85, 105, 1);
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            min-height: 44px;
+        }
+        
+        .remove-btn {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            min-height: 44px;
+        }
+        
+        .scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .legend {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">PADEL LEAGUE</h1>
+            <p class="subtitle">League C • 20 Teams • 4 Elite Groups</p>
+        </div>
+
+        <!-- Ranking System Explanation -->
+        <div class="ranking-system">
+            <h2 class="system-title">🎯 Ranking System</h2>
+            <div class="criteria">
+                <div class="criterion">
+                    <div class="priority">1st Priority</div>
+                    <h3>Match Points</h3>
+                    <p>Win: +1 point | Loss: 0 points</p>
+                </div>
+                <div class="criterion">
+                    <div class="priority">2nd Priority</div>
+                    <h3>Set Difference</h3>
+                    <p>Sets Won - Sets Lost</p>
+                </div>
+                <div class="criterion">
+                    <div class="priority">3rd Priority</div>
+                    <h3>Game Difference</h3>
+                    <p>Games Won - Games Lost</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Rankings Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">👥 Group Rankings</h2>
+                    <select id="groupSelector" class="group-selector">
+                        <option value="A">Group A</option>
+                        <option value="B">Group B</option>
+                        <option value="C">Group C</option>
+                        <option value="D">Group D</option>
+                    </select>
+                </div>
+                <div id="rankingsContainer"></div>
+                <div class="legend">
+                    <strong>Legend:</strong> MP: Match Points | W: Wins | L: Losses | SD: Set Difference | GD: Game Difference
+                </div>
+            </div>
+
+            <!-- Matches Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">⚡ Matches</h2>
+                    <button id="addMatchBtn" class="add-match-btn">➕ Add Match</button>
+                </div>
+                <div id="matchesContainer" class="scrollable"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const teams = [
+            { id: 1, name: 'Team Alpha', group: 'A' },
+            { id: 2, name: 'Team Beta', group: 'A' },
+            { id: 3, name: 'Team Gamma', group: 'A' },
+            { id: 4, name: 'Team Delta', group: 'A' },
+            { id: 5, name: 'Team Echo', group: 'A' },
+            { id: 6, name: 'Team Falcon', group: 'B' },
+            { id: 7, name: 'Team Griffin', group: 'B' },
+            { id: 8, name: 'Team Hunter', group: 'B' },
+            { id: 9, name: 'Team Iron', group: 'B' },
+            { id: 10, name: 'Team Jade', group: 'B' },
+            { id: 11, name: 'Team Knight', group: 'C' },
+            { id: 12, name: 'Team Lion', group: 'C' },
+            { id: 13, name: 'Team Mystic', group: 'C' },
+            { id: 14, name: 'Team Nova', group: 'C' },
+            { id: 15, name: 'Team Omega', group: 'C' },
+            { id: 16, name: 'Team Phoenix', group: 'D' },
+            { id: 17, name: 'Team Quantum', group: 'D' },
+            { id: 18, name: 'Team Ranger', group: 'D' },
+            { id: 19, name: 'Team Storm', group: 'D' },
+            { id: 20, name: 'Team Titan', group: 'D' }
+        ];
+
+        let matches = [
+            { 
+                id: 1, 
+                team1: 1, 
+                team2: 2, 
+                sets: [
+                    { team1Games: 6, team2Games: 4 }, 
+                    { team1Games: 4, team2Games: 6 }, 
+                    { team1Games: 6, team2Games: 2 }
+                ], 
+                group: 'A' 
+            },
+            { 
+                id: 2, 
+                team1: 1, 
+                team2: 3, 
+                sets: [
+                    { team1Games: 6, team2Games: 3 }, 
+                    { team1Games: 6, team2Games: 3 }
+                ], 
+                group: 'A' 
+            }
+        ];
+
+        let selectedGroup = 'A';
+        let matchIdCounter = 3;
+
+        // Calculate rankings
+        function calculateRankings(group) {
+            const groupTeams = teams.filter(team => team.group === group);
+            const groupMatches = matches.filter(match => match.group === group);
+            
+            const rankings = groupTeams.map(team => {
+                let matchPoints = 0;
+                let setsWon = 0;
+                let setsLost = 0;
+                let gamesWon = 0;
+                let gamesLost = 0;
+                let matchesPlayed = 0;
+                
+                groupMatches.forEach(match => {
+                    if (!match.sets) return;
+                    
+                    if (match.team1 === team.id || match.team2 === team.id) {
+                        matchesPlayed++;
+                        let team1SetsWon = 0;
+                        let team2SetsWon = 0;
+                        
+                        match.sets.forEach(set => {
+                            if (set.team1Games > set.team2Games) {
+                                team1SetsWon++;
+                            } else if (set.team2Games > set.team1Games) {
+                                team2SetsWon++;
+                            }
+                        });
+                        
+                        if (match.team1 === team.id) {
+                            setsWon += team1SetsWon;
+                            setsLost += team2SetsWon;
+                            match.sets.forEach(set => {
+                                gamesWon += set.team1Games || 0;
+                                gamesLost += set.team2Games || 0;
+                            });
+                            if (team1SetsWon > team2SetsWon) {
+                                matchPoints += 1;
+                            }
+                        } else {
+                            setsWon += team2SetsWon;
+                            setsLost += team1SetsWon;
+                            match.sets.forEach(set => {
+                                gamesWon += set.team2Games || 0;
+                                gamesLost += set.team1Games || 0;
+                            });
+                            if (team2SetsWon > team1SetsWon) {
+                                matchPoints += 1;
+                            }
+                        }
+                    }
+                });
+                
+                return {
+                    ...team,
+                    matchPoints,
+                    matchesPlayed,
+                    setsWon,
+                    setsLost,
+                    setDifference: setsWon - setsLost,
+                    gamesWon,
+                    gamesLost,
+                    gameDifference: gamesWon - gamesLost,
+                    wins: matchPoints,
+                    losses: matchesPlayed - matchPoints
+                };
+            });
+            
+            rankings.sort((a, b) => {
+                if (a.matchPoints !== b.matchPoints) {
+                    return b.matchPoints - a.matchPoints;
+                }
+                if (a.setDifference !== b.setDifference) {
+                    return b.setDifference - a.setDifference;
+                }
+                return b.gameDifference - a.gameDifference;
+            });
+            
+            return rankings.map((team, index) => ({
+                ...team,
+                position: index + 1
+            }));
+        }
+
+        // Render rankings
+        function renderRankings() {
+            const rankings = calculateRankings(selectedGroup);
+            const container = document.getElementById('rankingsContainer');
+            
+            container.innerHTML = rankings.map(team => `
+                <div class="team-row">
+                    <div class="team-info">
+                        <div class="position-badge">${team.position}</div>
+                        <div>
+                            <div class="team-name">${team.name}</div>
+                            <div style="font-size: 0.8rem; color: #9ca3af;">Position #${team.position}</div>
+                        </div>
+                    </div>
+                    <div class="stats">
+                        <div class="stat stat-mp">
+                            <div class="stat-value">${team.matchPoints}</div>
+                            <div class="stat-label">MP</div>
+                        </div>
+                        <div class="stat stat-w">
+                            <div class="stat-value">${team.wins}</div>
+                            <div class="stat-label">W</div>
+                        </div>
+                        <div class="stat stat-l">
+                            <div class="stat-value">${team.losses}</div>
+                            <div class="stat-label">L</div>
+                        </div>
+                        <div class="stat stat-sd">
+                            <div class="stat-value ${team.setDifference >= 0 ? 'positive' : 'negative'}">
+                                ${team.setDifference > 0 ? '+' : ''}${team.setDifference}
+                            </div>
+                            <div class="stat-label">SD</div>
+                        </div>
+                        <div class="stat stat-gd">
+                            <div class="stat-value ${team.gameDifference >= 0 ? 'positive' : 'negative'}">
+                                ${team.gameDifference > 0 ? '+' : ''}${team.gameDifference}
+                            </div>
+                            <div class="stat-label">GD</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render matches
+        function renderMatches() {
+            const groupMatches = matches.filter(match => match.group === selectedGroup);
+            const container = document.getElementById('matchesContainer');
+            
+            container.innerHTML = groupMatches.map(match => {
+                const team1 = teams.find(t => t.id === match.team1);
+                const team2 = teams.find(t => t.id === match.team2);
+                
+                let team1SetsWon = 0;
+                let team2SetsWon = 0;
+                let team1TotalGames = 0;
+                let team2TotalGames = 0;
+                
+                if (match.sets) {
+                    match.sets.forEach(set => {
+                        team1TotalGames += set.team1Games || 0;
+                        team2TotalGames += set.team2Games || 0;
+                        if (set.team1Games > set.team2Games) {
+                            team1SetsWon++;
+                        } else if (set.team2Games > set.team1Games) {
+                            team2SetsWon++;
+                        }
+                    });
+                }
+                
+                const winner = team1SetsWon > team2SetsWon ? team1?.name : 
+                             team2SetsWon > team1SetsWon ? team2?.name : 'Tie';
+                
+                const scoreDisplay = match.sets && match.sets.length > 0 
+                    ? match.sets.map(set => `${set.team1Games}-${set.team2Games}`).join(', ')
+                    : 'No sets';
+                
+                const team1SetDiff = team1SetsWon - team2SetsWon;
+                const team2SetDiff = team2SetsWon - team1SetsWon;
+                const team1GameDiff = team1TotalGames - team2TotalGames;
+                const team2GameDiff = team2TotalGames - team1TotalGames;
+                const team1Points = team1SetsWon > team2SetsWon ? 1 : 0;
+                const team2Points = team2SetsWon > team1SetsWon ? 1 : 0;
+                
+                return `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <div class="teams">
+                                <select class="team-select" onchange="updateTeam(${match.id}, 'team1', this.value)">
+                                    ${teams.filter(t => t.group === selectedGroup).map(team => 
+                                        `<option value="${team.id}" ${team.id === match.team1 ? 'selected' : ''}>${team.name}</option>`
+                                    ).join('')}
+                                </select>
+                                <span class="vs">VS</span>
+                                <select class="team-select" onchange="updateTeam(${match.id}, 'team2', this.value)">
+                                    ${teams.filter(t => t.group === selectedGroup).map(team => 
+                                        `<option value="${team.id}" ${team.id === match.team2 ? 'selected' : ''}>${team.name}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                ${winner !== 'Tie' ? `<div class="winner-badge">🏆 ${winner}</div>` : ''}
+                                <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 5px;">
+                                    Sets: ${team1SetsWon}-${team2SetsWon} | Score: ${scoreDisplay}
+                                </div>
+                            </div>
+                        </div>
+
+                        ${(team1SetsWon !== team2SetsWon || team1TotalGames > 0 || team2TotalGames > 0) ? `
+                        <div class="match-stats">
+                            <div class="stats-title">⚡ Match Statistics</div>
+                            <div class="team-stats">
+                                <div class="team-stat-card">
+                                    <div class="team-stat-name">${team1?.name}</div>
+                                    <div class="stat-row">
+                                        <span>Match Points:</span>
+                                        <span style="color: ${team1Points > 0 ? '#10b981' : '#6b7280'}; font-weight: bold;">+${team1Points}</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span>Set Difference:</span>
+                                        <span style="color: ${team1SetDiff >= 0 ? '#10b981' : '#ef4444'}; font-weight: bold;">
+                                            ${team1SetDiff > 0 ? '+' : ''}${team1SetDiff}
+                                        </span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span>Game Difference:</span>
+                                        <span style="color: ${team1GameDiff >= 0 ? '#10b981' : '#ef4444'}; font-weight: bold;">
+                                            ${team1GameDiff > 0 ? '+' : ''}${team1GameDiff}
+                                        </span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span>Total Games:</span>
+                                        <span style="color: #06b6d4; font-weight: bold;">${team1TotalGames}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="team-stat-card">
+                                    <div class="team-stat-name">${team2?.name}</div>
+                                    <div class="stat-row">
+                                        <span>Match Points:</span>
+                                        <span style="color: ${team2Points > 0 ? '#10b981' : '#6b7280'}; font-weight: bold;">+${team2Points}</span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span>Set Difference:</span>
+                                        <span style="color: ${team2SetDiff >= 0 ? '#10b981' : '#ef4444'}; font-weight: bold;">
+                                            ${team2SetDiff > 0 ? '+' : ''}${team2SetDiff}
+                                        </span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span>Game Difference:</span>
+                                        <span style="color: ${team2GameDiff >= 0 ? '#10b981' : '#ef4444'}; font-weight: bold;">
+                                            ${team2GameDiff > 0 ? '+' : ''}${team2GameDiff}
+                                        </span>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span>Total Games:</span>
+                                        <span style="color: #06b6d4; font-weight: bold;">${team2TotalGames}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="
